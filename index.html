@@ -136,6 +136,7 @@ nav.top .links a.lock{color:var(--lilac)}
 .station.s0 .disc::after{background:linear-gradient(135deg,var(--lilac),var(--rose))}
 .station.s1 .disc::after{background:linear-gradient(135deg,var(--mint),var(--gate))}
 .station b{display:block}
+.station .tag-st{display:block;font-family:var(--f-display);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--lilac);margin-bottom:2px}
 .station p{margin:2px 0 0;font-size:13px;color:var(--muted)}
 .station iframe{grid-column:1/-1;width:100%;height:152px;border:0;border-radius:12px}
 @media (max-width:520px){.station{grid-template-columns:auto minmax(0,1fr)}.station .btn{grid-column:1/-1;justify-self:start}}
@@ -607,7 +608,7 @@ const ARRIBO = Date.parse("2026-12-18T14:35:00-08:00");
 const INICIO = "2026-12-18", FIN = "2027-01-04";
 const SF = { lat: 37.7749, lon: -122.4194 };
 const RADIO = [
-  { id:"4DNpvD7NHtHqmRGdsfxKxE", nombre:"Our Way Back to Andrómeda", desc:"Pocas canciones, muy fuertes e importantes. La más especial y espiritual." },
+  { id:"4DNpvD7NHtHqmRGdsfxKxE", etiqueta:"Frecuencia sagrada", nombre:"Our Way Back to Andrómeda", desc:"Pocas canciones, muy fuertes e importantes. La más especial y espiritual." },
   { id:"52rDnKF7qDF6FNU3utiwPO", nombre:"Legumbres", desc:"Las canciones que nos gustan para compartir." }
 ];
 const EMBEDS = /github\.io$/.test(location.hostname); // en la web publicada se ven los reproductores
@@ -802,6 +803,10 @@ const ANIMOS = [["😬","Nervios"],["🥰","Enamorados"],["🤩","Emoción"],["�
 /* Compartimento privado: datos de ejemplo cifrados con AES-GCM */
 const COFRE = {"salt":"sGMkGDTCrbl3oE840oHwZQ==","iv":"TLER9KrGatcOFH1r","data":"+YPj8t8hjShmMjsUbnk0HXKO4n7N+KCWG08R1FgZOy7ceivupq/syAqmXlz4BgtWwSKB2H7TwNWtpNQzlAuBUvoX2g8Huw2rFx0d1W10Z+FrORx+nJGndIDlp01SSH6Bts9OJMKhoWvlW01NOIH/z/FauEvspxB2heCOFZa3mKyWVuN0V7UfzXfp1i3Fgqk/1xHDmRSs8G+RjNZxesI4TWPwgDmP++ARtKBzUD7JseNH4WGh/aXTDrs9XI7Z/jwZVwt5S+ma2pvHivH3YwHDZR54dz8XhYk1oSG5T+acqO7/NCDsdxBORdQjZIGsn80JHSZCL6GldZx4swZwo7w0+JRQzfFDiEETRCYnfntYJuiye+B+ewboJZdjzaq61ezgjbvz6utRMCS3NF8bts5eF9MWtKkGs4waG10eRC3B2jW1dloyNO52ZbQJKUrm3/EYSzTzo2VX86fl7mFNZLsKsIsHUT61NMtHCrgOwsUorgw4moGVFcc/H4Sa1xQb8joDSYqgoS2/5o7Q7HuAh61n3IAbxy8LdciDOjgQHTzJG/GjsUvU3j1XeGxQ049V+6XC3kt1TazypYNQCG/4XOaDDBCcNXFEz3hr1TzRks4eogcMVMWJhSZZx//hmzjsNd1spA==","iter":250000};
 
+/* La página siempre abre arriba de todo */
+try { history.scrollRestoration = "manual"; } catch {}
+if (!location.hash) addEventListener("load", () => scrollTo(0, 0));
+
 /* =========================================================
    UTILIDADES
    ========================================================= */
@@ -867,12 +872,15 @@ $("#tx-strip").innerHTML = TRANSMISIONES.map(t => `<figure class="tx"><div class
   document.querySelector(".signal-bar .dot.b").style.left = (100 - dia / 96 * 50) + "%";
 })();
 
-$("#radio").innerHTML = RADIO.map((r, i) => `<div class="card station s${i}"><div class="disc" aria-hidden="true"></div><div><b>${esc(r.nombre)}</b><p>${esc(r.desc)}</p></div><a class="btn" href="https://open.spotify.com/playlist/${r.id}" target="_blank" rel="noopener">Escuchar en Spotify ↗</a>${EMBEDS ? `<iframe src="https://open.spotify.com/embed/playlist/${r.id}" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" title="${esc(r.nombre)}"></iframe>` : ""}</div>`).join("");
+$("#radio").innerHTML = RADIO.map((r, i) => `<div class="card station s${i}"><div class="disc" aria-hidden="true"></div><div>${r.etiqueta ? `<small class="tag-st">${esc(r.etiqueta)}</small>` : ""}<b>${esc(r.nombre)}</b><p>${esc(r.desc)}</p></div><a class="btn" href="https://open.spotify.com/playlist/${r.id}" target="_blank" rel="noopener">Escuchar en Spotify ↗</a>${EMBEDS ? `<iframe src="https://open.spotify.com/embed/playlist/${r.id}" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" title="${esc(r.nombre)}"></iframe>` : ""}</div>`).join("");
 
-const COQUETEOS = ["Beso amistoso por si acaso 😘","MUCHO MÁS AMISTOSO","Sí. Desde el 13 de septiembre.","Las leyendas eran ciertas","AWA AWA","Te quiero un planeta gaseoso gigante y con demasiada masa","Universo, no hay problema jajaja júntanos pls","Mencantas","Señal recibida desde Andrómeda: afirmativo 👽","Me gustas tú, cada día más","Hazlo, hazlo con miedo, pero hazlo ❤️","¿Vamos por unos 754 mesesitos más?","08.09.2026 · infinito","Caminos paralelos, vidas distintas, un solo destino","¿TÚ CREES?","Feliz mesesito de hablar cósmicamente amorrrr","Alinígena detectada en el radar 👽","Hermoso sabroso goloso Gabrieloso","Gabrieloso meloso, carita de panda 🐼","Estado actual: camote total","Preocupación tranquila","Somos legumbres 🫘","Lerolorelore","Conversación tipo cereal de muchos colores 🌈","Worksito terminado. Ahora sí: coqueteo","Queso. Mayonesa. Te quiero."];
+const COQUETEOS = ["Beso nada amistoso por si acaso 😘", "Obvio que sí preciosaaaa", "Sí. Desde el 13 de septiembre.", "Las leyendas eran ciertas", "AWA AWA", "Te quiero un planeta gaseoso gigante y con demasiada masa", "Universo, no hay problema jajaja júntanos pls", "Mencantas", "Me gustas tú, cada día más", "Me haces valiente", "Eres mi rock", "¿Vamos por unos 754 mesesitos más?", "08.09.2026 - infinito", "Caminos paralelos, vidas distintas, un solo destino", "¿TÚ CREES?", "Gabrieloso meloso, carita de panda 🐼", "Estado actual: camote total", "Preocupación tranquila", "Legumbres", "Lerolorelore", "Cereal de muchos colores 🌈", "Worksito terminado. Ahora sí: coqueteo", "Queso. Mayonesa. Te quiero."];
+const PRIMER_COQUETEO = "Sí. Desde el 13 de septiembre.";
 let ultimoCoqueteo = -1;
 $("#btn-flirt").addEventListener("click", () => {
-  let k; do { k = Math.floor(Math.random() * COQUETEOS.length); } while (k === ultimoCoqueteo && COQUETEOS.length > 1);
+  let k;
+  if (ultimoCoqueteo === -1) k = COQUETEOS.indexOf(PRIMER_COQUETEO);
+  else do { k = Math.floor(Math.random() * COQUETEOS.length); } while (k === ultimoCoqueteo && COQUETEOS.length > 1);
   ultimoCoqueteo = k;
   const o = $("#flirt-out"); o.classList.remove("pop"); void o.offsetWidth; o.textContent = COQUETEOS[k]; o.classList.add("pop");
 });
@@ -1122,7 +1130,7 @@ function renderDia(i){
   $("#mood").innerHTML = `<i aria-hidden="true">${emo}</i>${esc(pal)}`;
   renderStrip(); renderClima(i); renderFotos(i);
   const btn = document.querySelector(`#daystrip [data-i="${i}"]`);
-  if (btn) btn.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+  if (btn){ const tira = $("#daystrip"); tira.scrollTo({ left: btn.offsetLeft - tira.clientWidth / 2 + btn.offsetWidth / 2, behavior: "smooth" }); }
 }
 function initViaje(){
   const hoy = sfHoy(), idx = FECHAS.indexOf(hoy);
