@@ -71,13 +71,19 @@ nav.top .links a.lock{color:var(--lilac)}
 .mission dt{font-family:var(--f-display);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
 .mission dd{margin:0;font-weight:700}
 .skyline{position:relative;height:150px;margin-top:6px}
-.skyline{--ga-w:clamp(160px,22vw,290px)}
-.skyline svg.bridge{position:absolute;right:0;bottom:-2px;width:calc(100% - var(--ga-w) * .35);height:100%}
+.skyline{--ga-w:clamp(200px,26vw,320px)}
+.skyline svg.bridge{position:absolute;right:0;bottom:-2px;width:calc(100% - var(--ga-w) * .55);height:100%}
 .couple{position:absolute;right:20px;top:216px;width:165px;height:165px;animation:float 7s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(3deg)}}
 @media (prefers-reduced-motion: reduce){.couple{animation:none}}
 @media (max-width:980px){.couple{top:auto;bottom:-60px;right:auto;left:calc(56px + .636 * (100% - 56px) - 29px);width:58px;height:58px;z-index:2}}
 .hero h1 .n1{font-family:var(--f-display);font-style:normal;font-weight:300;color:var(--gate);font-size:.62em;vertical-align:.38em;letter-spacing:0}
+.porthole{--p:clamp(100px,10vw,124px);position:absolute;right:40px;top:64px;width:var(--p);margin:0;padding:0;background:none;border:0}
+.porthole .glass{display:block;box-sizing:border-box;width:var(--p);height:var(--p);border-radius:50%;padding:6px;background:conic-gradient(from 20deg,#6b5f84,#cfc3dd,#5b4f78,#b9adc9,#6b5f84);box-shadow:0 0 0 2px #17142a;position:relative}
+.porthole .glass::before{content:"";position:absolute;inset:-28px;border-radius:50%;background:radial-gradient(circle,rgba(234,160,166,.38) 40%,rgba(234,160,166,0) 70%);z-index:-1;pointer-events:none}
+.porthole img{display:block;box-sizing:border-box;width:100%;height:100%;object-fit:cover;border-radius:50%;border:3px solid #17142a;background:transparent}
+.porthole figcaption{display:block;width:calc(var(--p) + 80px);margin:10px 0 0 -40px;font-family:var(--f-display);font-size:8px;letter-spacing:.2em;text-align:center;text-transform:uppercase;color:var(--muted)}
+@media (max-width:980px){.porthole{--p:62px;right:16px;top:158px}.porthole figcaption{display:none}.porthole .glass{padding:4px}.porthole .glass::before{inset:-14px}}
 .subtitle{margin:-6px 0 0;font-family:"Major Mono Display",ui-monospace,monospace;font-size:clamp(15px,1.8vw,20px);letter-spacing:.06em;color:var(--lilac);display:flex;align-items:baseline;flex-wrap:wrap;gap:0 .5em}
 .andro{color:var(--cream)}
 .bigA{font-family:var(--f-romance);font-style:italic;font-size:2.9em;line-height:.6;margin-right:.02em;background:linear-gradient(160deg,var(--lilac),var(--rose) 55%,var(--gate));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;display:inline-block;transform:translateY(.08em)}
@@ -87,12 +93,6 @@ nav.top .links a.lock{color:var(--lilac)}
 .blink.b2{animation-delay:1.2s}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
 @media (prefers-reduced-motion: reduce){.blink{animation:none}}
-.porthole{position:absolute;right:40px;top:64px;width:clamp(100px,10vw,124px);margin:0;display:grid;gap:10px;justify-items:center}
-.porthole .glass{width:100%;aspect-ratio:1;border-radius:50%;padding:6px;background:conic-gradient(from 20deg,#6b5f84,#cfc3dd,#5b4f78,#b9adc9,#6b5f84);box-shadow:0 0 0 2px #17142a,0 0 60px 8px color-mix(in oklab,var(--rose) 35%,transparent);position:relative}
-.porthole .glass::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.28),transparent 40%);pointer-events:none}
-.porthole img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;border:3px solid #17142a}
-.porthole figcaption{font-family:var(--f-display);font-size:8px;letter-spacing:.2em;text-align:center;text-transform:uppercase;color:var(--muted)}
-@media (max-width:980px){.porthole{position:absolute;right:16px;top:158px;width:62px}.porthole figcaption{display:none}}
 
 /* Transmisiones */
 .signal{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:center;margin-bottom:24px}
@@ -140,6 +140,29 @@ nav.top .links a.lock{color:var(--lilac)}
 .station p{margin:2px 0 0;font-size:13px;color:var(--muted)}
 .station iframe{grid-column:1/-1;width:100%;height:152px;border:0;border-radius:12px}
 @media (max-width:520px){.station{grid-template-columns:auto minmax(0,1fr)}.station .btn{grid-column:1/-1;justify-self:start}}
+
+/* Pestañas y videos */
+.tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);font:700 14px var(--f-body);padding:10px 12px;cursor:pointer;white-space:nowrap;margin-bottom:-1px}
+.tabs button[aria-selected="true"]{color:var(--cream);border-bottom-color:var(--gate)}
+.tabs button:hover{color:var(--cream)}
+.vid-add{display:flex;gap:8px}
+.vid-add input{flex:1;min-width:0;background:var(--void);border:1px solid var(--line);border-radius:999px;padding:10px 16px;color:var(--cream);font:500 14px var(--f-body)}
+.vids{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:6px}
+.vid{background:var(--deep);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:grid}
+.vid a.thumbv{position:relative;display:block;aspect-ratio:16/9;background:linear-gradient(160deg,#7b4f9e,#17142a)}
+.vid a.thumbv img{width:100%;height:100%;object-fit:cover;display:block}
+.vid a.thumbv .play{position:absolute;inset:0;display:grid;place-items:center}
+.vid a.thumbv .play i{width:46px;height:46px;border-radius:50%;background:rgba(23,20,42,.75);display:grid;place-items:center}
+.vid a.thumbv .play i::after{content:"";border-left:14px solid var(--cream);border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px}
+.vid .info{padding:12px 14px 14px;display:grid;gap:8px}
+.vid .info b{font-size:15px;line-height:1.35}
+.vid .info span{font-size:12px;color:var(--muted)}
+.vid .row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.vid label{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted);cursor:pointer}
+.vid label input{accent-color:var(--mint)}
+.vid.visto{opacity:.6}
+.vid .del{background:none;border:0;color:var(--bad);font:700 12px var(--f-body);cursor:pointer;padding:4px}
 
 /* Alien colgante que baja con el scroll */
 .alien{position:fixed;top:0;right:10px;z-index:30;pointer-events:none;display:flex;flex-direction:column;align-items:center;transform-origin:50% 0}
@@ -402,8 +425,8 @@ footer p{margin:0;font-family:var(--f-romance);font-style:italic;font-size:22px;
             <stop offset="1" stop-color="#17142a"/>
           </linearGradient>
         </defs>
-        <path d="M0 110 C 120 70, 200 90, 300 96 S 440 80, 520 104 L 520 150 L 0 150Z" fill="#2b2550" opacity=".7"/>
         <rect x="0" y="112" width="1200" height="38" fill="url(#bay)"/>
+        <path d="M0 150 L0 108 C 120 104, 300 98, 480 100 C 500 101, 520 106, 540 112 L540 150Z" fill="#2b2550"/>
         <g stroke="#e0693f" fill="#e0693f">
           <rect x="640" y="20" width="12" height="96"/>
           <rect x="880" y="20" width="12" height="96"/>
@@ -417,17 +440,17 @@ footer p{margin:0;font-family:var(--f-romance);font-style:italic;font-size:22px;
           </g>
         </g>
       </svg>
-      <svg class="ga" viewBox="0 0 260 150" preserveAspectRatio="xMinYMax meet" aria-hidden="true">
-        <g fill="#211b3a">
-          <path d="M260 150 L260 128 C 225 122, 195 100, 145 92 C 95 84, 40 84, 0 86 L0 150Z"/>
-          <text x="104" y="86" text-anchor="middle" font-family="Unbounded, system-ui, sans-serif" font-weight="700" font-size="42" letter-spacing="2">G+A</text>
+      <svg class="ga" viewBox="0 0 320 150" preserveAspectRatio="xMinYMax meet" aria-hidden="true">
+        <path d="M0 150 L0 96 C 30 78, 80 66, 130 66 C 185 66, 225 84, 262 104 C 284 116, 302 122, 320 124 L320 150Z" fill="#3a3166"/>
+        <path d="M0 150 L0 118 C 60 108, 140 112, 200 120 C 250 126, 290 132, 320 134 L320 150Z" fill="#2b2550"/>
+        <g fill="#1c1733">
+          <text x="128" y="70" text-anchor="middle" font-family="Unbounded, system-ui, sans-serif" font-weight="700" font-size="40" letter-spacing="2">G+A</text>
         </g>
-        <g stroke="#211b3a" stroke-width="2.2" stroke-linecap="round">
-          <path d="M62 86v7M84 86v6M128 86v6M148 86v7"/>
-          <path d="M64 58V38M60 45h8M138 56V34M134 42h8"/>
+        <g stroke="#1c1733" stroke-width="2.2" stroke-linecap="round">
+          <path d="M88 44V24M84 31h8M163 42V20M159 28h8"/>
         </g>
-        <circle class="blink" cx="64" cy="37" r="2.4" fill="#7fe0a0"/>
-        <circle class="blink b2" cx="138" cy="33" r="2.4" fill="#b78cff"/>
+        <circle class="blink" cx="88" cy="23" r="2.4" fill="#7fe0a0"/>
+        <circle class="blink b2" cx="163" cy="19" r="2.4" fill="#b78cff"/>
       </svg>
   </div>
 </header>
@@ -463,12 +486,29 @@ footer p{margin:0;font-family:var(--f-romance);font-style:italic;font-size:22px;
       </div>
       <div class="pre-grid">
         <div>
+          <div class="tabs" role="tablist" aria-label="Pre-viaje">
+            <button type="button" role="tab" id="tab-acts" aria-selected="true" aria-controls="panel-acts">Actividades</button>
+            <button type="button" role="tab" id="tab-videos" aria-selected="false" aria-controls="panel-videos">Videos para ver juntos</button>
+          </div>
+          <div id="panel-videos" role="tabpanel" aria-labelledby="tab-videos" hidden>
+            <form class="vid-add" id="vid-form">
+              <label for="vid-url" class="sr">Link de YouTube</label>
+              <input id="vid-url" type="url" placeholder="Pegá un link de YouTube" required>
+              <button class="btn" type="submit">Agregar</button>
+            </form>
+            <p class="err" id="vid-err" role="alert"></p>
+            <div class="vids" id="vids"></div>
+            <div class="edit-bar" style="margin-top:14px"><button class="btn ghost" type="button" id="vid-copy">Copiar lista para Claude</button><span class="note">Lo que agreguen se guarda en este navegador. Para que quede en la web para todos, copien la lista y pégamela.</span></div>
+            <div id="vid-copyout"></div>
+          </div>
+          <div id="panel-acts" role="tabpanel" aria-labelledby="tab-acts">
           <div class="edit-bar">
             <button class="btn ghost" type="button" id="btn-edit">Editar actividades y precios</button>
             <span class="note" id="edit-note"></span>
           </div>
           <div class="acts" id="acts"></div>
           <div id="copyout"></div>
+          </div>
         </div>
         <aside class="side">
           <div class="card">
@@ -1025,6 +1065,78 @@ function barra(){
   store.set("sf-checks", sel);
 }
 $("#checks").addEventListener("change", barra); barra();
+
+/* =========================================================
+   VIDEOS PARA VER JUNTOS (pestaña de Pre-viaje)
+   ========================================================= */
+const VIDEOS_BASE = [
+  { id:"rcfVWFRGsEQ", titulo:"", canal:"" },
+  { id:"Bz8iEJeh26E", titulo:"Glósóli (video oficial, 4K)", canal:"Sigur Rós" },
+  { id:"83ySyEGTYdM", titulo:"The Interstellar Dream I", canal:"CdeCiencia" }
+];
+let VIDEOS = store.get("sf-videos-v1", null) || JSON.parse(JSON.stringify(VIDEOS_BASE));
+const vistos = new Set(store.get("sf-vistos-v1", []));
+function ytId(u){
+  try {
+    const url = new URL(u.trim());
+    if (/youtu\.be$/.test(url.hostname)) return url.pathname.slice(1, 12);
+    if (/youtube\.com$/.test(url.hostname.replace(/^www\.|^m\.|^music\./, ""))) {
+      if (url.searchParams.get("v")) return url.searchParams.get("v").slice(0, 11);
+      const m = url.pathname.match(/\/(shorts|embed|live)\/([\w-]{11})/); if (m) return m[2];
+    }
+  } catch {}
+  return null;
+}
+function renderVideos(){
+  $("#vids").innerHTML = VIDEOS.map((v, i) => `<article class="vid ${vistos.has(v.id) ? "visto" : ""}">
+      <a class="thumbv" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener" aria-label="Ver en YouTube: ${esc(v.titulo || "video")}">
+        <img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="" loading="lazy" onerror="this.remove()">
+        <span class="play" aria-hidden="true"><i></i></span>
+      </a>
+      <div class="info">
+        <div><b data-tit="${i}">${esc(v.titulo || "Video de YouTube")}</b>${v.canal ? `<span style="display:block">${esc(v.canal)}</span>` : ""}</div>
+        <div class="row"><label><input type="checkbox" data-visto="${v.id}" ${vistos.has(v.id) ? "checked" : ""}>Ya lo vimos</label><button class="del" type="button" data-vdel="${i}">Quitar</button></div>
+      </div>
+    </article>`).join("");
+  VIDEOS.forEach((v, i) => { if (!v.titulo) completarTitulo(v, i); });
+}
+async function completarTitulo(v, i){
+  try {
+    const r = await fetch("https://noembed.com/embed?url=" + encodeURIComponent("https://www.youtube.com/watch?v=" + v.id));
+    const j = await r.json();
+    if (j.title){ v.titulo = j.title; v.canal = j.author_name || ""; const b = document.querySelector(`[data-tit="${i}"]`); if (b) b.textContent = v.titulo; }
+  } catch {}
+}
+$("#vid-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const id = ytId($("#vid-url").value);
+  if (!id){ $("#vid-err").textContent = "No reconozco ese link. Copiá la dirección del video desde YouTube y probá de nuevo."; return; }
+  if (VIDEOS.some(v => v.id === id)){ $("#vid-err").textContent = "Ese video ya está en la lista."; return; }
+  $("#vid-err").textContent = ""; $("#vid-url").value = "";
+  VIDEOS.push({ id, titulo:"", canal:"" }); store.set("sf-videos-v1", VIDEOS); renderVideos();
+});
+$("#vids").addEventListener("change", e => {
+  const id = e.target.dataset.visto; if (!id) return;
+  e.target.checked ? vistos.add(id) : vistos.delete(id);
+  store.set("sf-vistos-v1", [...vistos]); renderVideos();
+});
+$("#vids").addEventListener("click", e => {
+  const d = e.target.closest("[data-vdel]"); if (!d) return;
+  VIDEOS.splice(+d.dataset.vdel, 1); store.set("sf-videos-v1", VIDEOS); renderVideos();
+});
+$("#vid-copy").addEventListener("click", async e => {
+  const txt = "Videos para ver juntos:\n" + VIDEOS.map(v => "https://www.youtube.com/watch?v=" + v.id + (v.titulo ? "  (" + v.titulo + ")" : "")).join("\n");
+  try { await navigator.clipboard.writeText(txt); e.target.textContent = "¡Copiado! Pegalo en el chat"; }
+  catch { $("#vid-copyout").innerHTML = `<textarea class="copybox" readonly>${esc(txt)}</textarea>`; $("#vid-copyout textarea").select(); }
+});
+renderVideos();
+document.querySelector(".tabs").addEventListener("click", e => {
+  const t = e.target.closest('[role="tab"]'); if (!t) return;
+  document.querySelectorAll('.tabs [role="tab"]').forEach(b => {
+    const on = b === t; b.setAttribute("aria-selected", on);
+    document.getElementById(b.getAttribute("aria-controls")).hidden = !on;
+  });
+});
 
 /* =========================================================
    VIAJE
