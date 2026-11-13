@@ -98,12 +98,9 @@ nav.top .links a.lock{color:var(--lilac)}
 .signal{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:center;margin-bottom:24px}
 .signal-num b{font-family:var(--f-display);font-weight:500;font-size:clamp(20px,2.4vw,26px);line-height:1;font-variant-numeric:tabular-nums;color:var(--cream)}
 .signal-num small{display:block;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:6px}
-.signal-bar{position:relative;height:6px;border-radius:999px;background:repeating-linear-gradient(90deg,var(--line) 0 8px,transparent 8px 14px)}
-.signal-bar i{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(90deg,color-mix(in oklab,var(--mint) 30%,transparent),var(--mint));width:0}
-.signal-bar i.r{inset:0 0 0 auto;background:linear-gradient(90deg,var(--rose),color-mix(in oklab,var(--rose) 30%,transparent))}
-.signal-bar .dot{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 14px 2px currentColor}
-.signal-bar .dot.a{left:0;background:var(--mint);color:var(--mint)}
-.signal-bar .dot.b{left:100%;background:var(--rose);color:var(--rose)}
+.signal-bar{position:relative;height:96px}
+.signal-bar canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.signal-num .boom{color:var(--rose);font-family:var(--f-romance);font-style:italic;font-size:20px;letter-spacing:0;text-transform:none}
 @media (max-width:560px){.signal{grid-template-columns:1fr;gap:14px}}
 .tx-strip{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 16px;scroll-snap-type:x mandatory}
 .tx{flex:none;width:clamp(220px,28vw,300px);margin:0;scroll-snap-align:start;background:#0b0d14;border:1px solid var(--line);border-radius:16px;overflow:hidden}
@@ -465,8 +462,8 @@ footer p{margin:0;font-family:var(--f-romance);font-style:italic;font-size:22px;
         <p>Del primer mensaje, el 13 de septiembre, al aterrizaje del 18 de diciembre: mensajes, audios, cartas y videollamadas de un planeta a otro.</p>
       </div>
       <div class="signal">
-        <div class="signal-num"><b id="tx-dia">--</b><small>de 96 días · sus órbitas se acercan</small></div>
-        <div class="signal-bar" aria-hidden="true"><i id="tx-bar"></i><i id="tx-bar2" class="r"></i><span class="dot a"></span><span class="dot b"></span></div>
+        <div class="signal-num"><b id="tx-dia">--</b><small id="tx-label">de 96 días · sus órbitas se acercan</small></div>
+        <div class="signal-bar" aria-hidden="true"><canvas id="tx-canvas"></canvas></div>
       </div>
       <div class="tx-strip" id="tx-strip"></div>
       <div class="radio">
@@ -902,14 +899,85 @@ const TRANSMISIONES = [
   { img:"t6", fecha:"Récord", titulo:"5:08:20 de llamada sin cortar" }
 ];
 $("#tx-strip").innerHTML = TRANSMISIONES.map(t => `<figure class="tx"><div class="scr"><img src="assets/transmisiones/${t.img}.webp" alt="Videollamada: ${esc(t.titulo)}" loading="lazy"><span class="rec">${esc(t.fecha)}</span></div><figcaption><b>${esc(t.titulo)}</b></figcaption></figure>`).join("");
+/* Dos meteoritos que se acercan cada día; al aterrizar chocan y la explosión sigue para siempre */
 (function(){
-  const ini = Date.UTC(2026, 8, 13), fin = Date.UTC(2026, 11, 18);
-  const [y, m, d] = sfHoy().split("-").map(Number);
-  const dia = Math.max(0, Math.min(96, Math.round((Date.UTC(y, m - 1, d) - ini) / 864e5)));
-  $("#tx-dia").textContent = dia;
-  $("#tx-bar").style.width = $("#tx-bar2").style.width = (dia / 96 * 50) + "%";
-  document.querySelector(".signal-bar .dot.a").style.left = (dia / 96 * 50) + "%";
-  document.querySelector(".signal-bar .dot.b").style.left = (100 - dia / 96 * 50) + "%";
+  const INI = Date.parse("2026-09-13T00:00:00-07:00");          // primer mensaje (hora de SF)
+  const prueba = location.hash === "#prueba-explosion";         // para ver la explosión antes de tiempo
+  const VERDE = [23, 214, 128], MORADO = [198, 92, 240];        // verde oscuro brillante · morado tirando a rosa
+  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+  const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const cv = $("#tx-canvas"), ctx = cv.getContext("2d");
+  let W = 0, H = 0, t0 = performance.now(), chispas = [], anillos = [], ultimoAnillo = 0;
+
+  function avance(){
+    if (prueba) return 1;
+    return Math.max(0, Math.min(1, (Date.now() - INI) / (ARRIBO - INI)));
+  }
+  function etiqueta(p){
+    if (p >= 1){
+      $("#tx-dia").textContent = "96";
+      $("#tx-label").innerHTML = 'de 96 días · <span class="boom">órbitas unidas</span>';
+    } else {
+      const [y, m, d] = sfHoy().split("-").map(Number);
+      $("#tx-dia").textContent = Math.max(0, Math.min(95, Math.round((Date.UTC(y, m - 1, d) - Date.UTC(2026, 8, 13)) / 864e5)));
+    }
+  }
+  function medir(){
+    const r = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+    W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function meteoro(x, y, col, dir, t){
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 22);
+    g.addColorStop(0, rgba(col, .9)); g.addColorStop(.35, rgba(col, .35)); g.addColorStop(1, rgba(col, 0));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 22, 0, 6.283); ctx.fill();
+    const late = 5.5 + Math.sin(t / 260) * .8;
+    ctx.fillStyle = rgba(col, 1); ctx.beginPath(); ctx.arc(x, y, late, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.85)"; ctx.beginPath(); ctx.arc(x - dir * 1.5, y - 1.5, 2, 0, 6.283); ctx.fill();
+    if (!quieto && Math.random() < .55) chispas.push({ x, y: y + (Math.random() - .5) * 6, vx: -dir * (0.6 + Math.random() * 1.4), vy: (Math.random() - .5) * .5, v: 1, d: .018 + Math.random() * .02, r: 1 + Math.random() * 1.6, c: col });
+  }
+  function explosion(cx, cy, t){
+    const pulso = 1 + Math.sin(t / 420) * .12;
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 70 * pulso);
+    g.addColorStop(0, "rgba(255,240,250,.95)"); g.addColorStop(.18, rgba(MORADO, .7)); g.addColorStop(.45, rgba(VERDE, .3)); g.addColorStop(1, rgba(VERDE, 0));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 70 * pulso, 0, 6.283); ctx.fill();
+    if (quieto) return;
+    for (let k = 0; k < 5; k++){
+      const a = Math.random() * 6.283, v = 1 + Math.random() * 3.2;
+      chispas.push({ x: cx, y: cy, vx: Math.cos(a) * v, vy: Math.sin(a) * v * .55, v: 1, d: .008 + Math.random() * .012, r: 1 + Math.random() * 2, c: Math.random() < .5 ? VERDE : MORADO });
+    }
+    if (t - ultimoAnillo > 1300){ anillos.push({ r: 8, v: 1, c: anillos.length % 2 ? VERDE : MORADO }); ultimoAnillo = t; }
+    anillos = anillos.filter(a => (a.r += 1.6, a.v -= .012) > 0);
+    for (const a of anillos){ ctx.strokeStyle = rgba(a.c, a.v * .8); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(cx, cy, a.r, a.r * .55, 0, 0, 6.283); ctx.stroke(); }
+  }
+  function cuadro(t){
+    ctx.clearRect(0, 0, W, H);
+    const cy = H / 2, pad = 14, L = W - pad * 2;
+    const intro = quieto ? 1 : Math.min(1, (t - t0) / 2400), e = 1 - Math.pow(1 - intro, 3);
+    const p = avance() * e;
+    const xa = pad + p * L / 2, xb = W - pad - p * L / 2;
+    // camino que falta: punteado tenue
+    ctx.setLineDash([6, 8]); ctx.strokeStyle = "rgba(181,163,230,.28)"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(xa, cy); ctx.lineTo(xb, cy); ctx.stroke(); ctx.setLineDash([]);
+    // estelas recorridas
+    let g = ctx.createLinearGradient(pad, 0, xa, 0); g.addColorStop(0, rgba(VERDE, 0)); g.addColorStop(1, rgba(VERDE, .9));
+    ctx.strokeStyle = g; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(pad, cy); ctx.lineTo(xa, cy); ctx.stroke();
+    g = ctx.createLinearGradient(W - pad, 0, xb, 0); g.addColorStop(0, rgba(MORADO, 0)); g.addColorStop(1, rgba(MORADO, .9));
+    ctx.strokeStyle = g; ctx.beginPath(); ctx.moveTo(W - pad, cy); ctx.lineTo(xb, cy); ctx.stroke();
+    // chispas
+    chispas = chispas.filter(c => (c.x += c.vx, c.y += c.vy, c.v -= c.d) > 0);
+    for (const c of chispas){ ctx.fillStyle = rgba(c.c, c.v); ctx.beginPath(); ctx.arc(c.x, c.y, c.r * c.v + .3, 0, 6.283); ctx.fill(); }
+    if (p >= 1) explosion(W / 2, cy, t);
+    else {
+      const flota = quieto ? 0 : Math.sin(t / 500) * 2;
+      meteoro(xa, cy + flota, VERDE, 1, t);
+      meteoro(xb, cy - flota, MORADO, -1, t + 400);
+    }
+  }
+  function loop(t){ cuadro(t); if (!quieto) requestAnimationFrame(loop); }
+  medir(); etiqueta(avance());
+  addEventListener("resize", () => { medir(); if (quieto) cuadro(performance.now()); });
+  setInterval(() => etiqueta(avance()), 60000);
+  requestAnimationFrame(loop);
 })();
 
 $("#radio").innerHTML = RADIO.map((r, i) => `<div class="card station s${i}"><div class="disc" aria-hidden="true"></div><div>${r.etiqueta ? `<small class="tag-st">${esc(r.etiqueta)}</small>` : ""}<b>${esc(r.nombre)}</b><p>${esc(r.desc)}</p></div><a class="btn" href="https://open.spotify.com/playlist/${r.id}" target="_blank" rel="noopener">Escuchar en Spotify ↗</a>${EMBEDS ? `<iframe src="https://open.spotify.com/embed/playlist/${r.id}" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" title="${esc(r.nombre)}"></iframe>` : ""}</div>`).join("");
