@@ -926,14 +926,49 @@ $("#tx-strip").innerHTML = TRANSMISIONES.map(t => `<figure class="tx"><div class
     const r = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
     W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
+  /* Meteorito rocoso con silueta de corazón (como la piedra), dibujado una vez y reutilizado */
+  function roca(col, semilla){
+    const S = 72, c = document.createElement("canvas"); c.width = c.height = S * 2;
+    const g = c.getContext("2d"); g.scale(2, 2);
+    let r = semilla; const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647;
+    const ruido = Array.from({ length: 9 }, () => rnd() * 6.283);
+    const pts = [];
+    for (let k = 0; k < 120; k++){
+      const t = k / 120 * 6.283;
+      let x = 16 * Math.pow(Math.sin(t), 3), y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+      const borde = 1 + .07 * Math.sin(5 * t + ruido[0]) + .05 * Math.sin(11 * t + ruido[1]) + .03 * Math.sin(23 * t + ruido[2]);
+      pts.push([S / 2 + x * borde * 1.05, S / 2 + 2 + y * borde * 1.05]);
+    }
+    const forma = () => { g.beginPath(); pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.closePath(); };
+    const mezcla = (a, b, k) => a.map((v, i) => Math.round(v * (1 - k) + b[i] * k));
+    const base = mezcla([112, 104, 120], col, .18), sombra = mezcla([46, 41, 58], col, .12);
+    forma();
+    const rg = g.createRadialGradient(S / 2 - 8, S / 2 - 8, 2, S / 2, S / 2, 26);
+    rg.addColorStop(0, rgba(mezcla(base, [255, 255, 255], .25), 1)); rg.addColorStop(.6, rgba(base, 1)); rg.addColorStop(1, rgba(sombra, 1));
+    g.fillStyle = rg; g.fill();
+    g.save(); forma(); g.clip();
+    for (let k = 0; k < 260; k++){            // grano de la roca
+      g.fillStyle = rnd() < .5 ? "rgba(255,255,255,.07)" : "rgba(0,0,0,.12)";
+      g.fillRect(S / 2 - 20 + rnd() * 40, S / 2 - 18 + rnd() * 38, 1, 1);
+    }
+    for (let k = 0; k < 14; k++){             // poros y cráteres
+      const x = S / 2 - 14 + rnd() * 28, y = S / 2 - 12 + rnd() * 26, rr = .8 + rnd() * 2.6;
+      g.fillStyle = "rgba(20,16,30,.55)"; g.beginPath(); g.arc(x, y, rr, 0, 6.283); g.fill();
+      g.strokeStyle = "rgba(255,255,255,.12)"; g.lineWidth = .6; g.beginPath(); g.arc(x - .3, y - .3, rr, 3.4, 5.6); g.stroke();
+    }
+    g.restore();
+    forma(); g.strokeStyle = rgba(col, .55); g.lineWidth = 1.2; g.stroke();   // borde con un toque de color
+    return c;
+  }
+  const ROCAS = { v: roca(VERDE, 4271), m: roca(MORADO, 9137) };
   function meteoro(x, y, col, dir, t){
-    const g = ctx.createRadialGradient(x, y, 0, x, y, 22);
-    g.addColorStop(0, rgba(col, .9)); g.addColorStop(.35, rgba(col, .35)); g.addColorStop(1, rgba(col, 0));
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 22, 0, 6.283); ctx.fill();
-    const late = 5.5 + Math.sin(t / 260) * .8;
-    ctx.fillStyle = rgba(col, 1); ctx.beginPath(); ctx.arc(x, y, late, 0, 6.283); ctx.fill();
-    ctx.fillStyle = "rgba(255,255,255,.85)"; ctx.beginPath(); ctx.arc(x - dir * 1.5, y - 1.5, 2, 0, 6.283); ctx.fill();
-    if (!quieto && Math.random() < .55) chispas.push({ x, y: y + (Math.random() - .5) * 6, vx: -dir * (0.6 + Math.random() * 1.4), vy: (Math.random() - .5) * .5, v: 1, d: .018 + Math.random() * .02, r: 1 + Math.random() * 1.6, c: col });
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 26);
+    g.addColorStop(0, rgba(col, .22)); g.addColorStop(1, rgba(col, 0));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 26, 0, 6.283); ctx.fill();
+    const img = col === VERDE ? ROCAS.v : ROCAS.m, tam = 64;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(Math.sin(t / 1400) * .22 + dir * .12);
+    ctx.drawImage(img, -tam / 2, -tam / 2, tam, tam); ctx.restore();
+    if (!quieto && Math.random() < .35) chispas.push({ x: x - dir * 10, y: y + (Math.random() - .5) * 10, vx: -dir * (0.4 + Math.random() * 1), vy: (Math.random() - .5) * .4, v: .8, d: .02 + Math.random() * .02, r: .8 + Math.random() * 1.2, c: Math.random() < .6 ? [150, 140, 160] : col });
   }
   function explosion(cx, cy, t){
     const pulso = 1 + Math.sin(t / 420) * .12;
@@ -959,9 +994,9 @@ $("#tx-strip").innerHTML = TRANSMISIONES.map(t => `<figure class="tx"><div class
     ctx.setLineDash([6, 8]); ctx.strokeStyle = "rgba(181,163,230,.28)"; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(xa, cy); ctx.lineTo(xb, cy); ctx.stroke(); ctx.setLineDash([]);
     // estelas recorridas
-    let g = ctx.createLinearGradient(pad, 0, xa, 0); g.addColorStop(0, rgba(VERDE, 0)); g.addColorStop(1, rgba(VERDE, .9));
+    let g = ctx.createLinearGradient(pad, 0, xa, 0); g.addColorStop(0, rgba(VERDE, 0)); g.addColorStop(1, rgba(VERDE, .55));
     ctx.strokeStyle = g; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(pad, cy); ctx.lineTo(xa, cy); ctx.stroke();
-    g = ctx.createLinearGradient(W - pad, 0, xb, 0); g.addColorStop(0, rgba(MORADO, 0)); g.addColorStop(1, rgba(MORADO, .9));
+    g = ctx.createLinearGradient(W - pad, 0, xb, 0); g.addColorStop(0, rgba(MORADO, 0)); g.addColorStop(1, rgba(MORADO, .55));
     ctx.strokeStyle = g; ctx.beginPath(); ctx.moveTo(W - pad, cy); ctx.lineTo(xb, cy); ctx.stroke();
     // chispas
     chispas = chispas.filter(c => (c.x += c.vx, c.y += c.vy, c.v -= c.d) > 0);
