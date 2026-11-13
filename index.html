@@ -962,13 +962,13 @@ $("#tx-strip").innerHTML = TRANSMISIONES.map(t => `<figure class="tx"><div class
   }
   const ROCAS = { v: roca(VERDE, 4271), m: roca(MORADO, 9137) };
   function meteoro(x, y, col, dir, t){
-    const g = ctx.createRadialGradient(x, y, 0, x, y, 26);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 13);
     g.addColorStop(0, rgba(col, .22)); g.addColorStop(1, rgba(col, 0));
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 26, 0, 6.283); ctx.fill();
-    const img = col === VERDE ? ROCAS.v : ROCAS.m, tam = 64;
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 13, 0, 6.283); ctx.fill();
+    const img = col === VERDE ? ROCAS.v : ROCAS.m, tam = 32;
     ctx.save(); ctx.translate(x, y); ctx.rotate(Math.sin(t / 1400) * .22 + dir * .12);
     ctx.drawImage(img, -tam / 2, -tam / 2, tam, tam); ctx.restore();
-    if (!quieto && Math.random() < .35) chispas.push({ x: x - dir * 10, y: y + (Math.random() - .5) * 10, vx: -dir * (0.4 + Math.random() * 1), vy: (Math.random() - .5) * .4, v: .8, d: .02 + Math.random() * .02, r: .8 + Math.random() * 1.2, c: Math.random() < .6 ? [150, 140, 160] : col });
+    if (!quieto && Math.random() < .35) chispas.push({ x: x - dir * 5, y: y + (Math.random() - .5) * 5, vx: -dir * (0.4 + Math.random() * 1), vy: (Math.random() - .5) * .4, v: .8, d: .02 + Math.random() * .02, r: .8 + Math.random() * 1.2, c: Math.random() < .6 ? [150, 140, 160] : col });
   }
   function explosion(cx, cy, t){
     const pulso = 1 + Math.sin(t / 420) * .12;
